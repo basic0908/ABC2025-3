@@ -238,29 +238,50 @@ function featureExtraction(){
 //  - がここに入ります
 ////////////////////////////////////////////////////////////////////
 function classify(){
-
-    if(xmax > 1){
-	return 'walking';
-    }else{
-	return 'still';
+    
+    if (ymax <= 0) {
+        return 'still'; // (11.0/1.0)
+    } else {
+        // ymax > 0
+        if (ymax <= 1.4) {
+            if (xvariance <= 0.013803) {
+                return 'music walking'; // (2.0)
+            } else {
+                return 'walking'; // (7.0/1.0)
+            }
+        } else {
+            // ymax > 1.4
+            if (xmax <= 13.2) {
+                if (xmax <= 8.6) {
+                    if (ymin <= -4.7) {
+                        if (xvariance <= 3.596449) {
+                            return 'music walking'; // (2.0)
+                        } else {
+                            return 'dribbling'; // (3.0/1.0)
+                        }
+                    } else {
+                        // ymin > -4.7
+                        return 'dribbling'; // (3.0/1.0)
+                    }
+                } else {
+                    // xmax > 8.6
+                    if (zkurtosis <= 16.329331) {
+                        return 'walking'; // (4.0/1.0)
+                    } else {
+                        // zkurtosis > 16.329331
+                        if (xave <= 0.228667) {
+                            return 'dribbling'; // (3.0/1.0)
+                        } else {
+                            return 'music walking'; // (2.0)
+                        }
+                    }
+                }
+            } else {
+                // xmax > 13.2
+                return 'dribbling'; // (3.0)
+            }
+        }
     }
-
-    /*
-    if(zmin <= 0.1){
-	if(xmin <= -0.2){
-	    if(xmin <= -0.4){
-		return 'walking';
-	    }else{
-		return 'still';
-	    }
-	}else{
-	    return 'walking';
-	}
-    }else{
-	return 'still';
-    }
-    */
-
 }
 	
 function arrStdDev(arr, mean) {
