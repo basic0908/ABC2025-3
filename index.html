@@ -90,9 +90,9 @@
 
     <h3>Real-time execution result / 実機に移植しての性能評価</h3>
     <ul>
-      <li>Evaluation metric you used / 評価尺度について</li>
-      <li>Evaluation results / 評価結果</li>
-      <li>Any challenges and tweaks / 工夫した点・困難だった点</li>
+      <li>Evaluation metric you used / 評価尺度について:各動作を3回ずつ繰り返し、正しく分類されるかを検証した</li>
+      <li>Evaluation results / 評価結果:7/12</li>
+      <li>Any challenges and tweaks / 工夫した点・困難だった点: ズボンをはき替えてしまい、環境が変わったため上手く分類ができなくなった。できる限り同じ環境で検証をする</li>
     </ul>
 
   </body>
@@ -214,19 +214,19 @@ function featureExtraction(){
     xmin = Math.min.apply(Math, xdata); $('#xmin').text(xmin);
     xmax = Math.max.apply(Math, xdata); $('#xmax').text(xmax);
     xave = arrAvg(xdata); $('#xave').text(xave);
-	xkurtosis = arrKurtosis(xdata, xave);    $('#xkurtosis').text(xkurt.toFixed(4));
+	xkurtosis = arrKurtosis(xdata, xave);    $('#xkurtosis').text(xkurtosis.toFixed(4));
     xsumabs = xdata.reduce((acc, val) => acc + Math.abs(val), 0); $('#xsumabs').text(xsumabs.toFixed(4)); 
     
     ymin = Math.min.apply(Math, ydata); $('#ymin').text(ymin);
     ymax = Math.max.apply(Math, ydata); $('#ymax').text(ymax);
     yave = arrAvg(ydata); $('#yave').text(yave);
-	ykurtosis = arrKurtosis(ydata, yave);    $('#ykurtosis').text(ykurt.toFixed(4));
+	ykurtosis = arrKurtosis(ydata, yave);    $('#ykurtosis').text(ykurtosis.toFixed(4));
     ysumabs = ydata.reduce((acc, val) => acc + Math.abs(val), 0); $('#ysumabs').text(ysumabs.toFixed(4)); 
 
     zmax = Math.max.apply(Math, zdata); $('#zmax').text(zmax);
     zmin = Math.min.apply(Math, zdata); $('#zmin').text(zmin);
     zave = arrAvg(zdata); $('#zave').text(zave);
-	zkurtosis = arrKurtosis(zdata, zave);    $('#zkurtosis').text(zkurt.toFixed(4));
+	zkurtosis = arrKurtosis(zdata, zave);    $('#zkurtosis').text(zkurtosis.toFixed(4));
     zsumabs = zdata.reduce((acc, val) => acc + Math.abs(val), 0); $('#zsumabs').text(zsumabs.toFixed(4)); 
 }
 
