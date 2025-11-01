@@ -31,14 +31,21 @@
     <li> min x: <span id="xmin">0</span> </li>
     <li> max x: <span id="xmax">0</span> </li>
     <li> ave x: <span id="xave">0</span> </li>
+    <li> kurtosis x: <span id="xkurtosis">0</span> </li>
+    <li> sumabs x: <span id="xsumabs">0</span> </li>
+		
 
     <li> min y: <span id="ymin">0</span> </li>
     <li> max y: <span id="ymax">0</span> </li>
     <li> ave y: <span id="yave">0</span> </li>
+	<li> kurtosis y: <span id="ykurtosis">0</span> </li>
+    <li> sumabs y: <span id="ysumabs">0</span> </li>
 
     <li> min z: <span id="zmin">0</span> </li>
     <li> max z: <span id="zmax">0</span> </li>
     <li> ave z: <span id="zave">0</span> </li>
+	<li> kurtosis z: <span id="zkurtosis">0</span> </li>
+    <li> sumabs z: <span id="zsumabs">0</span> </li>
     </ul>
 
     <h3>(1) Raw sensor values for this time window</h3>
@@ -54,31 +61,31 @@
 
     <h2>レポート記述欄 / Report</h2>
     <ul>
-      <li>Name / 氏名:</li>
-      <li>Department / 学部:</li>
-      <li>Year / 学年:</li>
-      <li>Student ID / 学籍番号:</li>
-      <li>CNS Email / CNSメールアドレス:</li>
+      <li>Name / 氏名:飯塚涼</li>
+      <li>Department / 学部:環境情報学部</li>
+      <li>Year / 学年:4年</li>
+      <li>Student ID / 学籍番号:72240377</li>
+      <li>CNS Email / CNSメールアドレス:t22037ri@sfc.keio.ac.jp</li>
     </ul>
 
-    <h3>Collected Data / 収集した行動データ</h3>
+    <h3>Collected Data / 収集した行動データ(still, music walking, walking, dribble walking)</h3>
     <ul>
-      <li>Reason behind data selection / 選定した理由</li>
-      <li>Details about collection / 収集についての詳細</li>
-      <li>Any challenges and tweaks / 工夫した点・困難だった点</li>
+      <li>Reason behind data selection / 選定した理由:いろいろな歩き方を試してどのくらいの粒度で分類できるのか興味を持った。単純な行動の分類じゃなくて、歩きの質を捉えたいと思った。stillはベースラインとして</li>
+      <li>Details about collection / 収集についての詳細:stillは直立不動、music walkingは音楽を聴きながら歩いたとき(少しリズムをイメージ)、walkingは普通に歩いたとき、driblle walkingはサッカーボールをドリブルしながら</li>
+      <li>Any challenges and tweaks / 工夫した点・困難だった点:music walkingとwalkingに大きな違いは生まれなさそうだと思ったので、music walkingの時はリズムを感じながら気持ち大げさに歩いた。</li>
     </ul>
 
-    <h3>Features / 特徴量</h3>
+    <h3>Features / 特徴量(max, min, average, variance, absolute sum, kurtosis</h3>
     <ul>
-      <li>Reason behind data selection / 選定した理由</li>
-      <li>Details about additional feature types / 追加した特徴量について</li>
-      <li>Any challenges and tweaks / 工夫した点・困難だった点</li>
+      <li>Reason behind data selection / 選定した理由: music walkingはwalkingに比べ、早いリズムで歩いた。そのため、変化量が多いと感じ、music walkingのほうが合計が大きくなると思った。kurtosisは、ドリブル中はシャープな変化が多いと感じたため</li>
+      <li>Details about additional feature types / 追加した特徴量について: absolute sumは絶対値の合計、kurtosisは尖度</li>
+      <li>Any challenges and tweaks / 工夫した点・困難だった点:変化量が大きいことの定量化がabsolute sumなのは果たして最適なのか。max derivative的ないい指標がありそうだと感じた。</li>
     </ul>    
 
     <h3>ML Model / 機械学習モデル</h3>
     <ul>
-      <li>Algorithm you used and the training result / 採用したアルゴリズムや学習結果の詳細</li>
-      <li>Any challenges and tweaks / 工夫した点・困難だった点</li>
+      <li>Algorithm you used and the training result / 採用したアルゴリズムや学習結果の詳細:J48 Pruned tree - correctly classified instances 50% (20/40)</li>
+      <li>Any challenges and tweaks / 工夫した点・困難だった点: Confusion Matrix上ではmusic walkingとdribblingのご分類が多かった。これらを差別化できる指標が必要だった</li>
     </ul>
 
     <h3>Real-time execution result / 実機に移植しての性能評価</h3>
@@ -109,12 +116,18 @@ var num_data = 0;
 var xmin = 0.0;
 var xmax = 0.0;
 var xave = 0.0;
+var xkurtosis = 0.0;
+var xsumabs = 0.0;
 var ymin = 0.0;
 var ymax = 0.0;
 var yave = 0.0;
+var ykurtosis = 0.0;
+var ysumabs = 0.0;
 var zmin = 0.0;
 var zmax = 0.0;
 var zave = 0.0;
+var zkurtosis = 0.0;
+var zsumabs = 0.0;
 
 //////////////////////////////////////////////////////
 //Function to get sensor access permission from the browser
@@ -201,14 +214,20 @@ function featureExtraction(){
     xmin = Math.min.apply(Math, xdata); $('#xmin').text(xmin);
     xmax = Math.max.apply(Math, xdata); $('#xmax').text(xmax);
     xave = arrAvg(xdata); $('#xave').text(xave);
+	xkurtosis = arrKurtosis(xdata, xave);    $('#xkurtosis').text(xkurt.toFixed(4));
+    xsumabs = xdata.reduce((acc, val) => acc + Math.abs(val), 0); $('#xsumabs').text(xsumabs.toFixed(4)); 
     
     ymin = Math.min.apply(Math, ydata); $('#ymin').text(ymin);
     ymax = Math.max.apply(Math, ydata); $('#ymax').text(ymax);
     yave = arrAvg(ydata); $('#yave').text(yave);
+	ykurtosis = arrKurtosis(ydata, yave);    $('#ykurtosis').text(ykurt.toFixed(4));
+    ysumabs = ydata.reduce((acc, val) => acc + Math.abs(val), 0); $('#ysumabs').text(ysumabs.toFixed(4)); 
 
     zmax = Math.max.apply(Math, zdata); $('#zmax').text(zmax);
     zmin = Math.min.apply(Math, zdata); $('#zmin').text(zmin);
     zave = arrAvg(zdata); $('#zave').text(zave);
+	zkurtosis = arrKurtosis(zdata, zave);    $('#zkurtosis').text(zkurt.toFixed(4));
+    zsumabs = zdata.reduce((acc, val) => acc + Math.abs(val), 0); $('#zsumabs').text(zsumabs.toFixed(4)); 
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -242,6 +261,27 @@ function classify(){
     }
     */
 
+}
+	
+function arrStdDev(arr, mean) {
+    if (arr.length < 2) return 0;
+    const n = arr.length;
+    const variance = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (n - 1);
+    return Math.sqrt(variance);
+}
+function arrKurtosis(arr, mean) {
+    if (arr.length < 4) return 0; 
+
+    const n = arr.length;
+    
+    const m2 = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / n;
+    if (m2 === 0) return 0;
+    
+    const stdDev_pop = Math.sqrt(m2);
+
+    const m4_normalized = arr.reduce((acc, val) => acc + Math.pow((val - mean) / stdDev_pop, 4), 0) / n;
+
+    return m4_normalized - 3;
 }
 
 </script>
